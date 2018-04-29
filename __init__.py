@@ -66,7 +66,7 @@ class WebCache():
         ''' Will update all urls'''
         now = time.time()
         get_age = lambda x: now - x['time-updated']
-        return self._update([k for k, v in self.dir.items() if get_age(v) > age])
+        return self._update([k for k, v in self.dir.items() if v['present'] and get_age(v) > age])
             
     def _update(self, to_dl):
         if len(to_dl) == 0:
