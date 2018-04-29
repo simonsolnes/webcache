@@ -1,17 +1,19 @@
 # webcache
 Cache webpages when you are testing your web scrapers.
 
-Add this to your project with :
+## Putting it in your project
+Add this to your project with:
 
 `$ git submodule add https://github.com/simonsolnes/webcache webcache`
 
 and
 
-## Quick Intro
-
 ```python3
 from webcache import WebCache
 ```
+
+## Quick Intro
+
 
 To download a webpage:
 ```python
@@ -27,16 +29,16 @@ Gets the webpage data from the web or local cache.
 `insert(*urls (string)) -> None`  
 Puts one or several urls in the directory, but the cache doesn't download it. Meant for cuncurrent downloads.
 
-`fetch() -> pages that failed (list), number of pages fetched (int)` 
+`fetch() -> pages that failed (list), number of pages fetched (int)`  
 Will download all webpages that are not local.
 
-`update_url(*urls (string)) -> pages that failed (list), number of pages fetched (int)` 
+`update_url(*urls (string)) ->` pages that failed `(list),` number of pages fetched `(int)`  
 Will update the urls that is passed.
 
-`update_all() -> pages that failed (list), number of pages fetched (int)` 
+`update_all() -> pages that failed (list), number of pages fetched (int)`  
 Will redownload all webpages that the cache knows about.
 
-`update_old(age (int, seconds)) -> pages that failed (list), number of pages fetched (int)` 
+`update_old(age (int, seconds)) -> pages that failed (list), number of pages fetched (int)`  
 Will update the urls that has an age older than the one specified.
 
 `reset() -> None`  
