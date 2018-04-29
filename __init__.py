@@ -43,9 +43,7 @@ class WebCache():
     def insert(self, *urls):
         assert(self.entered)
         for url in urls:
-            if url in self.dir:
-                self.dir[url]['present'] = False
-            else:
+            if url not in self.dir:
                 self.__new_page(url)
                 self.dir[url]['present'] = False
 
