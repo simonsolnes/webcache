@@ -1,17 +1,19 @@
 # webcache
 Cache webpages when you are testing your web scrapers.
 
-Add this to your project with :
+## Putting it in your project
+Add this to your project with:
 
 `$ git submodule add https://github.com/simonsolnes/webcache webcache`
 
 and
 
-## Quick Intro
-
 ```python3
 from webcache import WebCache
 ```
+
+## Quick Intro
+
 
 To download a webpage:
 ```python
