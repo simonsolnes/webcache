@@ -29,19 +29,19 @@ Gets the webpage data from the web or local cache.
 `insert(*urls (string))`  
 Puts one or several urls in the directory, but the cache doesn't download it. Meant for cuncurrent downloads.
 
-`fetch()`
+`fetch()`  
 Will download all webpages that are not local.
 
-`update_url(*urls (string))`
+`update_url(*urls (string))`  
 Will update the urls that is passed.
 
-`update_all()`
+`update_all()`  
 Will redownload all webpages that the cache knows about.
 
-`update_old(age (int, seconds))`
+`update_old(age (int, seconds))` 
 Will update the urls that has an age older than the one specified.
 
-`reset()`
+`reset()`  
 Will delete all local data.
 
 
