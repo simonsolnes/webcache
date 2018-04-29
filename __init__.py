@@ -6,12 +6,6 @@ import threading
 import time
 import shutil
 
-'''
-To Do:
-- automatically enter and exit each time
-- iteration
-'''
-
 class _DLth(threading.Thread):
     def __init__(self, directory, url, fault_pages):
         threading.Thread.__init__(self)
@@ -43,7 +37,6 @@ class WebCache():
         self.path = os.path.dirname(__file__) + '/cache/'
         self.dir_path = os.path.dirname(__file__) + '/dir.json'
         self.entered = False
-
 
     def __enter__(self):
         if not os.path.exists(self.path):
@@ -83,7 +76,6 @@ class WebCache():
             u_url = url
 
         now = time.time()
-
         to_update = []
 
         for d_url, meta in self.dir.items():
@@ -104,7 +96,6 @@ class WebCache():
 
         threads = []
         fault_pages = []
-
                 
         for d_url in to_update:
             th = _DLth(self.dir, d_url, fault_pages)
@@ -125,8 +116,6 @@ class WebCache():
         if not self.entered:
             self.__enter__()
         assert(self.entered)
-
-
 
         if url in self.dir and self.dir[url]['present']:
             pass
@@ -163,7 +152,6 @@ class WebCache():
         if inout:
             self.__exit__(None, None, None)
 
-        # it should never happen but better to be on the safe side
         assert(self.path != '/')
 
         if os.path.exists(self.path):
