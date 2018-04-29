@@ -17,6 +17,23 @@ with WebCache as c:
 	website = c.get('https://www.python.org')
 ```
 
+## Methods
+
+`get(url) -> webpage data (str)`  
+Gets the webpage data from the web or local cache.
+
+`update(url?, age?, use_time?) -> pages that failed (list)`  
+Will update all the urls that is in the local directory of urls that you have sent to `get` or `insert`.
+
+`insert(url) -> None`  
+Puts an url in the directory, so that it can be updated.
+
+`reset() -> None`  
+Will delete all local data.
+
+
+## Updating and inserting
+
 If you want to download several pages concurrently:
 ```python
 urls = [
@@ -30,17 +47,6 @@ with WebCache as c:
 	c.update()
 	website = c.get('https://www.python.org')
 ```
-
-## Methods
-
-```
-get(url) -> webpage data (str)
-insert(url) -> None
-update(url?, age?, use_time?) -> pages that failed (list)
-reset() -> None
-```
-
-## Updating and inserting
 
 Update one url:
 ```python
