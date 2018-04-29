@@ -7,13 +7,15 @@ Add this to your project with :
 
 and
 
+## Quick Intro
+
 ```python3
 from webcache import WebCache
 ```
 
 To download a webpage:
 ```python
-with WebCache as c:
+with WebCache() as c:
 	website = c.get('https://www.python.org')
 ```
 
@@ -22,68 +24,82 @@ with WebCache as c:
 `get(url) -> webpage data (str)`  
 Gets the webpage data from the web or local cache.
 
-`update(url?, age?, use_time?) -> pages that failed (list)`  
-Will update all the urls that is in the local directory of urls that you have sent to `get` or `insert`.
+`insert(*urls (string)) -> None`  
+Puts one or several urls in the directory, but the cache doesn't download it. Meant for cuncurrent downloads.
 
-`insert(url) -> None`  
-Puts an url in the directory, so that it can be updated.
+`fetch() -> pages that failed (list), number of pages fetched (int)` 
+Will download all webpages that are not local.
+
+`update_url(*urls (string)) -> pages that failed (list), number of pages fetched (int)` 
+Will update the urls that is passed.
+
+`update_all() -> pages that failed (list), number of pages fetched (int)` 
+Will redownload all webpages that the cache knows about.
+
+`update_old(age (int, seconds)) -> pages that failed (list), number of pages fetched (int)` 
+Will update the urls that has an age older than the one specified.
 
 `reset() -> None`  
 Will delete all local data.
 
 
-## Updating and inserting
+## Downloading concurrently; `insert` and `fetch`
 
-If you want to download several pages concurrently:
 ```python
 urls = [
 	'https://www.python.org'
 	'https://duckduckgo.com'
 	'https://www.wikipedia.org'
 ]
-with WebCache as c:
-	for url in urls:
-		c.insert(url)
-	c.update()
+with WebCache() as c:
+	c.insert(*urls)
+	c.fetch()
 	website = c.get('https://www.python.org')
 ```
 
-Update one url:
+## Updating webpages
+
+Update an url:
 ```python
-with WebCache as c:
-	c.update('https://www.python.org')
+with WebCache() as c:
+	# one
+	c.update_url('https://www.python.org')
+	# or several
+	c.update(*urls)
 ```
 
-Update several urls:
+Update old urls:
 ```python
-with WebCache as c:
-	c.update(urls)
+with WebCache() as c:
+	c.update_old(60 * 60)
 ```
 
-To not overload a server, you can set an amount of time that you are willing to wait for the update (in seconds):
+Update all urls:
 ```python
-with WebCache as c:
-	c.update(use_time = 60)
+with WebCache() as c:
+	c.update_all()
 ```
 
-Only update urls that are old
-```python
-with WebCache as c:
-	c.update(age = 60 * 60)
-```
+## Not get a DoS
+To not overload a server, you can set an amount of time that you are willing to wait when the cache is downloading several webpages. The longer the wait, the longer the time between each request.
 
-## Reset
-
-Reset the whole cache:
 ```python
-with WebCache as c:
-	c.reset()
+with WebCache(60) as c:
+	...
 ```
 
 ## Without context
 It is possible to do:
 ```python
-c = WebCache:
+c = WebCache():
 website = c.get('https://www.python.org')
 ```
-But is not recommended with several webpages
+But is not recommended when several webpages is needed, since the cache needs to load its directory for each time you create an instance.
+
+The class is a singleton, so there is no need to worry about if there is something else is using the cache at the moment.
+
+## Reset
+Reset the whole cache:
+```python
+WebCache().reset()
+```

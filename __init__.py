@@ -33,83 +33,66 @@ class _Singleton(type):
 class WebCache():
     __metaclass__ = _Singleton
 
-    def __init__(self):
+    def __init__(self, time = 1):
         self.path = os.path.dirname(__file__) + '/cache/'
         self.dir_path = os.path.dirname(__file__) + '/dir.json'
         self.entered = False
+        self.time = time
 
-    def __enter__(self):
-        if not os.path.exists(self.path):
-            os.makedirs(self.path)
-            
-        if os.path.isfile(self.dir_path):
-            with open(self.dir_path, 'r') as f:
-                self.dir = json.loads(f.read())
-        else:
-            self.dir = {}
-        self.entered = True
-        return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        with open(self.dir_path, 'w') as f:
-            f.write(json.dumps(self.dir))
-        self.entered = False
-
-    def insert(self, url):
+    def insert(self, *urls):
         assert(self.entered)
-        if url in self.dir:
-            self.dir[url]['present'] = False
-        else:
-            self.__new_page(url)
-            self.dir[url]['present'] = False
-
-    def update(self, url = None, age = None, use_time = 0):
-        assert(self.entered)
-
-        assert(type(url) in [type(None), list, str])
-        assert(type(age) in [type(None), int, float])
-        assert(type(use_time) in [type(None), int, float])
-
-        if isinstance(url, str):
-            u_url = [url]
-        else:
-            u_url = url
-
-        now = time.time()
-        to_update = []
-
-        for d_url, meta in self.dir.items():
-            if u_url:
-                if d_url in u_url:
-                    to_update.append(d_url)
-                    continue
+        for url in urls:
+            if url in self.dir:
+                self.dir[url]['present'] = False
             else:
-                if age:
-                    age_diff = now - meta['time-updated']
-                    if age_diff > age:
-                        to_update.append(d_url)
-                else:
-                    to_update.append(d_url)
+                self.__new_page(url)
+                self.dir[url]['present'] = False
 
-        if not to_update:
-            return
 
-        threads = []
+    def fetch(self):
+        ''' Will download urls that doesn't exist locally '''
+        return self._update([k for k, v in self.dir.items() if not v['present']])
+
+    def update_url(self, *urls):
+        ''' Will update one or several urls'''
+        return self._update([k for k in self.dir if k in urls])
+
+    def update_all(self):
+        ''' Will update all urls'''
+        return self._update([k for k in self.dir])
+
+    def update_old(self, age):
+        ''' Will update all urls'''
+        now = time.time()
+        get_age = lambda x: now - x['time-updated']
+        return self._update([k for k, v in self.dir.items() if get_age(v) > age])
+            
+    def _update(self, to_dl):
+        if len(to_dl) == 0:
+            return []
+
         fault_pages = []
-                
-        for d_url in to_update:
-            th = _DLth(self.dir, d_url, fault_pages)
-            threads.append(th)
 
-        t = float(use_time) / len(to_update)
-        for th in threads:
-            time.sleep(t)
+        if len(to_dl) == 1:
+            th = _DLth(self.dir, to_dl[0], fault_pages)
             th.start()
-        for th in threads:
             th.join()
+            
+        else:
+            threads = []
+            for d_url in to_dl:
+                th = _DLth(self.dir, d_url, fault_pages)
+                threads.append(th)
+            t = float(self.time) / len(to_dl)
+            for th in threads:
+                time.sleep(t)
+                th.start()
+            for th in threads:
+                th.join()
 
-        return fault_pages
-    
+        return fault_pages, len(to_dl)
+        
     def get(self, url):
         inout = not self.entered
 
@@ -134,6 +117,25 @@ class WebCache():
             self.__exit__(None, None, None)
 
         return retval
+
+
+
+    def __enter__(self):
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
+            
+        if os.path.isfile(self.dir_path):
+            with open(self.dir_path, 'r') as f:
+                self.dir = json.loads(f.read())
+        else:
+            self.dir = {}
+        self.entered = True
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        with open(self.dir_path, 'w') as f:
+            f.write(json.dumps(self.dir))
+        self.entered = False
 
     def __new_page(self, url):
         taken = True
